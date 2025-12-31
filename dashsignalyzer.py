@@ -208,9 +208,26 @@ def toggle_mat_path_inputs(selected):
         return ".e.g. //server//aaa/bbb"
     return "invalid"
 
-def do_io_task():
+def check_mat_folder(selection_method, job_number, folder_type, folder_path):
+    print(f"Selection method: {selection_method}")
+    print(f"Job number: {job_number}")
+    print(f"Folder type: {folder_type}")
+    print(f"Folder path: {folder_path}")
+
     import time
     time.sleep(5)
+
+    if selection_method == "by-job-number":
+        if not job_number:
+            return False  # Fail if Job number is empty
+        # Process with Job number
+        pass
+    elif selection_method == "by-folder":
+        if not folder_path:
+            return False  # Fail if Folder path is empty
+        # Process with Folder path
+        pass
+
     # Return True for success, False for failure
     # For demonstration, randomly return True or False
     import random
@@ -243,11 +260,15 @@ def handle_settings_apply_button(apply_n_clicks, success_close_n_clicks, error_c
 @app.callback(
     Output("store-settings-apply-process-result", "data"),
     Input("modal-settings-apply-processing", "is_open"),
+    State("radioitems-mat-folder-selection-method", "value"),
+    State("input-text-job-number", "value"),
+    State("radioitems-mat-folder-type", "value"),
+    State("input-text-mat-folder", "value"),
     prevent_initial_call=True)
-def trigger_check_mat_folder(processing_is_open):
+def trigger_check_mat_folder(processing_is_open, selection_method, job_number, folder_type, folder_path):
     if processing_is_open:
-        # Execute the IO task
-        result = do_io_task()
+        # Execute the IO task with UI values
+        result = check_mat_folder(selection_method, job_number, folder_type, folder_path)
         return {"success": result}
     return dash.no_update
 
