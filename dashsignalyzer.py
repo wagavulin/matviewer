@@ -98,84 +98,151 @@ app.layout = dbc.Container([
         className="mb-4"
     ),
     dbc.Tabs([
-        dbc.Tab(label="Settings", tab_id="tab-settings"),
-        dbc.Tab(label="Triggers", tab_id="tab-triggers", disabled=True),
-        dbc.Tab(label="Analysis", tab_id="tab-analysis", disabled=True),
-        dbc.Tab(label="タブ3", tab_id="tab-3", disabled=True),
+        dbc.Tab(label="Settings", tab_id="tab-settings", children=[
+            dbc.Container([
+                dbc.Row([
+                    html.H2("Settings"),
+                    dbc.RadioItems(
+                        id="radioitems-mat-folder-selection-method",
+                        options=[
+                            {"label": "Job Number", "value": "by-job-number"},
+                            {"label": "Folder", "value": "by-folder"},
+                        ],
+                        value="by-job-number",
+                        inline=True, # 横並び
+                    ),
+                    html.Hr(),
+                    dbc.Collapse(
+                        id="collapse-mat-folder-selection-by-job-number",
+                        is_open=True,
+                        children=([
+                            dbc.InputGroup([
+                                dbc.InputGroupText("Job Number: "),
+                                dbc.Input(
+                                    id="input-text-job-number",
+                                    type="text",
+                                    placeholder="12345"
+                                ),
+                            ])
+                        ])
+                    ),
+                    dbc.Collapse(
+                        id="collapse-mat-folder-selection-by-folder",
+                        is_open=False,
+                        children=([
+                            dbc.RadioItems(
+                                id="radioitems-mat-folder-type",
+                                options=[
+                                    {"label": "Path in the server", "value": "server-path"},
+                                    {"label": "Shared folder path ('\\' characters will be replaced with '/'. 'file://' will be removed.)", "value": "shared"},
+                                ],
+                                value="server-path",
+                                inline=False,
+                                className="mb-3"
+                            ),
+                            dbc.Input(
+                                id="input-text-mat-folder",
+                                type="text",
+                                className="mb-3"
+                            ),
+                        ])
+                    ),
+                    dbc.Button("Apply", id="button-settings-apply", className="w-auto"),
+                    html.P(id="debug-message1")
+                ])
+            ])
+        ]),
+        dbc.Tab(label="Triggers", tab_id="tab-triggers", children=[
+            html.P("hello2")
+        ]),
+        dbc.Tab(label="Analysis", tab_id="tab-analysis", children=[
+            dbc.Container([
+                dbc.Row([
+                    dbc.Col(html.Img(src="hoge.jpg"), width=6, style={"height": "100%"}),
+                    dbc.Col(html.Img(src="hoge.jpg"), width=6, style={"height": "100%"}),
+                ], style={"height": "20%"}),
+                dbc.Row([
+                    dcc.Graph(
+                        id="graph-signals",
+                        #figure=fig,
+                        config={"staticPlot": True},
+                        style={"height": "800px"}),
+                ]),
+            ]),
+        ]),
     ],
     id="tabs-main",
     active_tab="tab-settings"),
-    html.Div(id="tab-content")
 ], fluid=True)
 
-@app.callback(
-    Output("tab-content", "children"),
-    Input("tabs-main", "active_tab"))
-def render_tab_content(active_tab):
-    if active_tab == "tab-settings":
-        return create_settings_tab_content()
-    if active_tab == "tab-1":
-        return html.Div("Tab1 content")
-    elif active_tab == "tab-2":
-        return create_main_tab_content()
-    elif active_tab == "tab-3":
-        return html.Div("Tab3 content")
-    else:
-        return "タブが選択されていません"
+# @app.callback(
+#     Output("tab-content", "children"),
+#     Input("tabs-main", "active_tab"))
+# def render_tab_content(active_tab):
+#     if active_tab == "tab-settings":
+#         return create_settings_tab_content()
+#     if active_tab == "tab-1":
+#         return html.Div("Tab1 content")
+#     elif active_tab == "tab-2":
+#         return create_main_tab_content()
+#     elif active_tab == "tab-3":
+#         return html.Div("Tab3 content")
+#     else:
+#         return "タブが選択されていません"
 
-def create_settings_tab_content():
-    return dbc.Container([
-        dbc.Row([
-            html.H2("Settings"),
-            dbc.RadioItems(
-                id="radioitems-mat-folder-selection-method",
-                options=[
-                    {"label": "Job Number", "value": "by-job-number"},
-                    {"label": "Folder", "value": "by-folder"},
-                ],
-                value="by-job-number",
-                inline=True, # 横並び
-            ),
-            html.Hr(),
-            dbc.Collapse(
-                id="collapse-mat-folder-selection-by-job-number",
-                is_open=True,
-                children=([
-                    dbc.InputGroup([
-                        dbc.InputGroupText("Job Number: "),
-                        dbc.Input(
-                            id="input-text-job-number",
-                            type="text",
-                            placeholder="12345"
-                        ),
-                    ])
-                ])
-            ),
-            dbc.Collapse(
-                id="collapse-mat-folder-selection-by-folder",
-                is_open=False,
-                children=([
-                    dbc.RadioItems(
-                        id="radioitems-mat-folder-type",
-                        options=[
-                            {"label": "Path in the server", "value": "server-path"},
-                            {"label": "Shared folder path ('\\' characters will be replaced with '/'. 'file://' will be removed.)", "value": "shared"},
-                        ],
-                        value="server-path",
-                        inline=False,
-                        className="mb-3"
-                    ),
-                    dbc.Input(
-                        id="input-text-mat-folder",
-                        type="text",
-                        className="mb-3"
-                    ),
-                ])
-            ),
-            dbc.Button("Apply", id="button-settings-apply", className="w-auto"),
-            html.P(id="debug-message1")
-        ])
-    ])
+# def create_settings_tab_content():
+#     return dbc.Container([
+#         dbc.Row([
+#             html.H2("Settings"),
+#             dbc.RadioItems(
+#                 id="radioitems-mat-folder-selection-method",
+#                 options=[
+#                     {"label": "Job Number", "value": "by-job-number"},
+#                     {"label": "Folder", "value": "by-folder"},
+#                 ],
+#                 value="by-job-number",
+#                 inline=True, # 横並び
+#             ),
+#             html.Hr(),
+#             dbc.Collapse(
+#                 id="collapse-mat-folder-selection-by-job-number",
+#                 is_open=True,
+#                 children=([
+#                     dbc.InputGroup([
+#                         dbc.InputGroupText("Job Number: "),
+#                         dbc.Input(
+#                             id="input-text-job-number",
+#                             type="text",
+#                             placeholder="12345"
+#                         ),
+#                     ])
+#                 ])
+#             ),
+#             dbc.Collapse(
+#                 id="collapse-mat-folder-selection-by-folder",
+#                 is_open=False,
+#                 children=([
+#                     dbc.RadioItems(
+#                         id="radioitems-mat-folder-type",
+#                         options=[
+#                             {"label": "Path in the server", "value": "server-path"},
+#                             {"label": "Shared folder path ('\\' characters will be replaced with '/'. 'file://' will be removed.)", "value": "shared"},
+#                         ],
+#                         value="server-path",
+#                         inline=False,
+#                         className="mb-3"
+#                     ),
+#                     dbc.Input(
+#                         id="input-text-mat-folder",
+#                         type="text",
+#                         className="mb-3"
+#                     ),
+#                 ])
+#             ),
+#             dbc.Button("Apply", id="button-settings-apply", className="w-auto"),
+#             html.P(id="debug-message1")
+#         ])
+#     ])
 
 @app.callback(
     Output("collapse-mat-folder-selection-by-job-number", "is_open"),
