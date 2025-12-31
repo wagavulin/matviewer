@@ -204,7 +204,6 @@ def toggle_main_tab(value):
     Input("input-text-job-number", "value"),
     Input("input-text-mat-folder", "value"))
 def disable_apply_button(selection_method, job_number, folder_path):
-    """Applyボタンの有効/無効を制御"""
     if selection_method == "by-job-number":
         # When job number is selected -> job_number must be set
         return not job_number or job_number.strip() == ""
