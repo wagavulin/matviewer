@@ -17,6 +17,21 @@ import os
 
 g_script_dir = os.path.dirname(os.path.abspath(__file__))
 
+THEMES = {
+    "CERULEAN": dbc.themes.CERULEAN,
+    "MORPH": dbc.themes.MORPH,
+    "QUARTZ": dbc.themes.QUARTZ,
+    "SLATE": dbc.themes.SLATE,
+    "SOLAR": dbc.themes.SOLAR,
+    "SPACELAB": dbc.themes.SPACELAB,
+}
+
+# THEMES = {
+#     name: value
+#     for name, value in dbc.themes.__dict__.items()
+#     if not name.startswith("_") and isinstance(value, str)
+# }
+
 @dataclasses.dataclass
 class Config:
     event_list_path:str
@@ -106,6 +121,16 @@ app.layout = dbc.Container([
             dbc.Container([
                 dbc.Row([
                     html.H2("Settings"),
+
+                    dcc.Dropdown(
+                        id="theme-selector",
+                        options=[{"label": k, "value": v} for k, v in THEMES.items()],
+                        value=THEMES["CERULEAN"],
+                        clearable=False,
+                        style={"width": "300px"},
+                    ),
+                    html.Link(id="theme-css", rel="stylesheet", href=THEMES["CERULEAN"]),
+
                     dbc.RadioItems(
                         id="radioitems-mat-folder-selection-method",
                         options=[
@@ -224,6 +249,12 @@ app.layout = dbc.Container([
     id="tabs-main",
     active_tab="tab-settings"),
 ], fluid=True)
+
+@app.callback(
+    Output("theme-css", "href"),
+    Input("theme-selector", "value"))
+def update_theme_css(theme_url):
+    return theme_url
 
 @app.callback(
     Output("collapse-mat-folder-selection-by-job-number", "is_open"),
