@@ -158,17 +158,17 @@ app.layout = dbc.Container([
             dbc.Modal([
                 dbc.ModalHeader("Processing"),
                 dbc.ModalBody(dcc.Loading(id="loading-settings-apply", type="circle", children=html.Div("loading..."))),
-            ], id="modal-settings-apply-processing", is_open=False, backdrop="static", keyboard=False),
+            ], id="modal-settings-apply-processing", is_open=False, backdrop="static", keyboard=False, centered=True),
             dbc.Modal([
                 dbc.ModalHeader("Success"),
                 dbc.ModalBody("Loaded the mat folder"),
                 dbc.ModalFooter(dbc.Button("Close", id="button-settings-apply-success-modal-close", className="ms-auto")),
-            ], id="modal-settings-apply-success", is_open=False),
+            ], id="modal-settings-apply-success", is_open=False, centered=True),
             dbc.Modal([
                 dbc.ModalHeader("Error"),
                 dbc.ModalBody(html.Div(id="modal-settings-apply-error-body", children="Failed to load the mat folder")),
                 dbc.ModalFooter(dbc.Button("Close", id="button-settings-apply-error-modal-close", className="ms-auto")),
-            ], id="modal-settings-apply-error", is_open=False),
+            ], id="modal-settings-apply-error", is_open=False, centered=True),
             dcc.Store(id="store-settings-apply-process-started"),
             dcc.Store(id="store-settings-apply-process-result"),
         ]),
