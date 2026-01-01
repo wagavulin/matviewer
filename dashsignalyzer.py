@@ -166,7 +166,7 @@ app.layout = dbc.Container([
             ], id="modal-settings-apply-success", is_open=False),
             dbc.Modal([
                 dbc.ModalHeader("Error"),
-                dbc.ModalBody("Failed to load the mat folder"),
+                dbc.ModalBody(html.Div(id="modal-settings-apply-error-body", children="Failed to load the mat folder")),
                 dbc.ModalFooter(dbc.Button("Close", id="button-settings-apply-error-modal-close", className="ms-auto")),
             ], id="modal-settings-apply-error", is_open=False),
             dcc.Store(id="store-settings-apply-process-started"),
@@ -237,19 +237,50 @@ def check_mat_folder(selection_method:str, job_number:str, folder_type:str, fold
 
     mat_dir = None
     if selection_method == "by-job-number":
-        if not job_number:
-            return False  # Fail if Job number is empty
+        if not job_number or job_number.strip() == "":
+            return {"success": False, "error": "Job number is empty"}
         # Process with Job number
         mat_dir = f"{CONF.mat_server_dir}/{job_number}"
     elif selection_method == "by-folder":
-        if not folder_path:
-            return False  # Fail if Folder path is empty
+        if not folder_path or folder_path.strip() == "":
+            return {"success": False, "error": "Folder path is empty"}
         # Process with Folder path
+        # Clean up path format
+        if folder_path.startswith("file://"):
+            folder_path = folder_path[7:]  # Remove file:// prefix
         mat_dir = folder_path.replace("\\", "/")
+    else:
+        return {"success": False, "error": f"Unknown selection method: {selection_method}"}
 
+    # Check if directory exists
     if not os.path.exists(mat_dir):
-        return False
-    return True
+        return {"success": False, "error": f"Directory does not exist: {mat_dir}"}
+
+    # Check if it's actually a directory
+    if not os.path.isdir(mat_dir):
+        return {"success": False, "error": f"Path is not a directory: {mat_dir}"}
+
+    # Check if directory is readable
+    if not os.access(mat_dir, os.R_OK):
+        return {"success": False, "error": f"Directory is not readable: {mat_dir}"}
+
+    # Check if directory contains .mat files
+    mat_files = [f for f in os.listdir(mat_dir) if f.endswith('.mat')]
+    if not mat_files:
+        return {"success": False, "error": f"No .mat files found in directory: {mat_dir}"}
+
+    # Check if .mat files are readable
+    for mat_file in mat_files[:5]:  # Check first 5 files only
+        mat_path = os.path.join(mat_dir, mat_file)
+        try:
+            with h5py.File(mat_path, 'r') as f:
+                # Try to access basic structure
+                if 'port1' not in f or 'port2' not in f:
+                    return {"success": False, "error": f"Invalid .mat file structure in: {mat_file}"}
+        except Exception as e:
+            return {"success": False, "error": f"Cannot read .mat file {mat_file}: {str(e)}"}
+
+    return {"success": True, "error": None, "mat_dir": mat_dir, "mat_files": len(mat_files)}
 
 @app.callback(
     Output("modal-settings-apply-processing", "is_open"),
@@ -287,24 +318,27 @@ def trigger_check_mat_folder(processing_is_open, selection_method, job_number, f
     if processing_is_open:
         # Execute the IO task with UI values
         result = check_mat_folder(selection_method, job_number, folder_type, folder_path)
-        return {"success": result}
+        return result
     return dash.no_update
 
 @app.callback(
     Output("modal-settings-apply-processing", "is_open", allow_duplicate=True),
     Output("modal-settings-apply-success", "is_open", allow_duplicate=True),
     Output("modal-settings-apply-error", "is_open", allow_duplicate=True),
+    Output("modal-settings-apply-error-body", "children"),
     Input("store-settings-apply-process-result", "data"),
     prevent_initial_call=True)
 def handle_check_mat_folder_result(result_data):
     if result_data and "success" in result_data:
         if result_data["success"]:
             # Success: close processing modal, show success modal
-            return False, True, False
+            success_msg = f"Successfully loaded mat folder with {result_data.get('mat_files', 0)} .mat files"
+            return False, True, False, success_msg
         else:
             # Failure: close processing modal, show error modal
-            return False, False, True
-    return dash.no_update, dash.no_update, dash.no_update
+            error_msg = result_data.get("error", "Unknown error occurred")
+            return False, False, True, error_msg
+    return dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
 def create_main_tab_content():
     return dbc.Container([
