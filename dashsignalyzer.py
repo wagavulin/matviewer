@@ -15,12 +15,16 @@ from dash import html, dcc, callback, Input, Output, State, callback_context
 import dash_bootstrap_components as dbc
 import os
 
+g_script_dir = os.path.dirname(os.path.abspath(__file__))
+
 @dataclasses.dataclass
 class Config:
     event_list_path:str
+    mat_server_dir:str
 
 CONF = Config(
-    event_list_path="./event-list.xlsx"
+    event_list_path="./event-list.xlsx",
+    mat_server_dir=f"{g_script_dir}/server-out"
 )
 
 def get_signal_by_path(d, path:str):
@@ -71,7 +75,7 @@ def generate_signal_figure(mat:h5py.File, event_time:float):
 
     return fig
 
-evlist_df = pd.read_excel(CONF.event_list_path)
+g_evlist_df = pd.read_excel(CONF.event_list_path)
 
 #%%
 def generate_dummy_graph() -> go.Figure:
@@ -222,30 +226,30 @@ def toggle_mat_path_inputs(selected):
         return ".e.g. //server//aaa/bbb"
     return "invalid"
 
-def check_mat_folder(selection_method, job_number, folder_type, folder_path):
+def check_mat_folder(selection_method:str, job_number:str, folder_type:str, folder_path:str):
     print(f"Selection method: {selection_method}")
     print(f"Job number: {job_number}")
     print(f"Folder type: {folder_type}")
     print(f"Folder path: {folder_path}")
 
     import time
-    time.sleep(5)
+    time.sleep(2)
 
+    mat_dir = None
     if selection_method == "by-job-number":
         if not job_number:
             return False  # Fail if Job number is empty
         # Process with Job number
-        pass
+        mat_dir = f"{CONF.mat_server_dir}/{job_number}"
     elif selection_method == "by-folder":
         if not folder_path:
             return False  # Fail if Folder path is empty
         # Process with Folder path
-        pass
+        mat_dir = folder_path.replace("\\", "/")
 
-    # Return True for success, False for failure
-    # For demonstration, randomly return True or False
-    import random
-    return random.choice([True, False])
+    if not os.path.exists(mat_dir):
+        return False
+    return True
 
 @app.callback(
     Output("modal-settings-apply-processing", "is_open"),
