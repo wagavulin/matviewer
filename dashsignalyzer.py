@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 import dash
-from dash import html, dcc, callback, Input, Output, State, callback_context
+from dash import html, dcc, callback, Input, Output, State, callback_context, dash_table
 import dash_bootstrap_components as dbc
 import os
 
@@ -41,6 +41,12 @@ CONF = Config(
     event_list_path="./event-list.xlsx",
     mat_server_dir=f"{g_script_dir}/server-out"
 )
+
+@dataclasses.dataclass
+class AppContext:
+    mat_dir:str
+
+g_ac = AppContext(mat_dir="")
 
 def get_signal_by_path(d, path:str):
     keys = path.split(".")
@@ -239,17 +245,26 @@ app.layout = dbc.Container([
             dcc.Store(id="store-settings-apply-process-result"),
         ]),
         dbc.Tab(label="Triggers", tab_id="tab-triggers", children=[
-            html.P("hello2")
+            dash_table.DataTable(g_evlist_df.to_dict("records")),
         ]),
         dbc.Tab(label="Analysis", tab_id="tab-analysis", children=[
             dbc.Container([
                 dbc.Row([
-                    dbc.Col(html.Img(src="hoge.jpg"), width=6, style={"height": "100%"}),
-                    dbc.Col(html.Img(src="hoge.jpg"), width=6, style={"height": "100%"}),
+                    dcc.Dropdown(
+                        id="dropdown-analysis-latid",
+                        options=[{"label": id, "value": id} for id in g_evlist_df["event_id"]],
+                        className="theme-dropdown"),
+                ]),
+                dbc.Row([
+                    html.Div(id="div-analysis-trigger-info"),
+                ]),
+                dbc.Row([
+                    dbc.Col(html.Img(src="hoge.jpg"), width=6, style={"height": "300", "border": "solid 1px"}),
+                    dbc.Col(html.Img(src="hoge.jpg"), width=6, style={"height": "300", "border": "solid 1px"}),
                 ], style={"height": "20%"}),
                 dbc.Row([
                     dcc.Graph(
-                        id="graph-signals",
+                        id="graph-analysis-signals",
                         #figure=fig,
                         config={"staticPlot": True},
                         style={"height": "800px"}),
@@ -305,7 +320,7 @@ def check_mat_folder(selection_method:str, job_number:str, folder_type:str, fold
     print(f"Folder path: {folder_path}")
 
     import time
-    time.sleep(2)
+    time.sleep(0.5)
 
     mat_dir = None
     if selection_method == "by-job-number":
@@ -351,6 +366,8 @@ def check_mat_folder(selection_method:str, job_number:str, folder_type:str, fold
                     return {"success": False, "error": f"Invalid .mat file structure in: {mat_file}"}
         except Exception as e:
             return {"success": False, "error": f"Cannot read .mat file {mat_file}: {str(e)}"}
+
+    g_ac.mat_dir = mat_dir
 
     return {"success": True, "error": None, "mat_dir": mat_dir, "mat_files": len(mat_files)}
 
@@ -412,19 +429,22 @@ def handle_check_mat_folder_result(result_data):
             return False, False, True, error_msg
     return dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
-def create_main_tab_content():
-    return dbc.Container([
-        dbc.Row([
-            dbc.Col(html.Img(src="hoge.jpg"), width=6, style={"height": "100%"}),
-            dbc.Col(html.Img(src="hoge.jpg"), width=6, style={"height": "100%"}),
-        ], style={"height": "20%"}),
-        dbc.Row([
-            dcc.Graph(
-                id="graph-signals",
-                #figure=fig,
-                config={"staticPlot": True},
-                style={"height": "800px"}),
-        ]),
-    ])
+@app.callback(
+    Output("div-analysis-trigger-info", "children"),
+    Output("graph-analysis-signals", "figure"),
+    Input("dropdown-analysis-latid", "value"),
+    prevent_initial_call=True)
+def latid_updated(s_latid):
+    latid = int(s_latid)
+    row = g_evlist_df[g_evlist_df["event_id"] == latid].iloc[0]
+    info_text = f'{latid}  {row["file"]}  {row["dat"]}'
+
+    stem = os.path.splitext(row["file"])[0]
+    mat_fname = f"{stem}.mat"
+    mat_path = f"{g_ac.mat_dir}/{mat_fname}"
+    h5obj = h5py.File(mat_path)
+    dat = row["dat"]
+    fig = generate_signal_figure(h5obj, dat)
+    return info_text, fig
 
 app.run(host="0.0.0.0", debug=True)
