@@ -113,23 +113,34 @@ app.layout = dbc.Container([
         children=[
             dbc.NavItem(dbc.NavLink("Home", href="#")),
             dbc.NavItem(dbc.NavLink("About", href="#")),
+            dbc.DropdownMenu(
+                label="Settings",
+                children=[
+                    dbc.DropdownMenuItem("Application Settings", header=True),
+                    html.Div([
+                        html.Label("Theme:", className="dropdown-header px-3 py-2"),
+                        dbc.Select(
+                            id="navbar-theme-selector",
+                            options=[{"label": k, "value": v} for k, v in THEMES.items()],
+                            value=THEMES["CERULEAN"],
+                            className="mx-3 mb-2",
+                            style={"width": "200px"}
+                        ),
+                    ])
+                ],
+                nav=True,
+                in_navbar=True,
+                className="ms-auto"
+            ),
         ],
         className="mb-4"
     ),
+    html.Link(id="navbar-theme-css", rel="stylesheet", href=THEMES["CERULEAN"]),
     dbc.Tabs([
         dbc.Tab(label="Settings", tab_id="tab-settings", children=[
             dbc.Container([
                 dbc.Row([
                     html.H2("Settings"),
-
-                    dcc.Dropdown(
-                        id="theme-selector",
-                        options=[{"label": k, "value": v} for k, v in THEMES.items()],
-                        value=THEMES["CERULEAN"],
-                        clearable=False,
-                        style={"width": "300px"},
-                    ),
-                    html.Link(id="theme-css", rel="stylesheet", href=THEMES["CERULEAN"]),
 
                     dbc.RadioItems(
                         id="radioitems-mat-folder-selection-method",
@@ -251,8 +262,8 @@ app.layout = dbc.Container([
 ], fluid=True)
 
 @app.callback(
-    Output("theme-css", "href"),
-    Input("theme-selector", "value"))
+    Output("navbar-theme-css", "href"),
+    Input("navbar-theme-selector", "value"))
 def update_theme_css(theme_url):
     return theme_url
 
