@@ -156,18 +156,50 @@ app.layout = dbc.Container([
                 ])
             ]),
             dbc.Modal([
-                dbc.ModalHeader("Processing"),
-                dbc.ModalBody(dcc.Loading(id="loading-settings-apply", type="circle", children=html.Div("loading..."))),
+                dbc.ModalHeader([
+                    html.I(className="fas fa-spinner fa-spin me-2", style={"color": "#0d6efd"}),
+                    "Processing"
+                ], style={"background-color": "#e7f1ff", "border-bottom": "1px solid #0d6efd"}),
+                dbc.ModalBody([
+                    html.Div([
+                        dcc.Loading(id="loading-settings-apply", type="circle", color="#0d6efd", children=html.Div("Checking mat folder...", className="text-center mt-3")),
+                    ], className="text-center")
+                ], style={"padding": "30px"}),
             ], id="modal-settings-apply-processing", is_open=False, backdrop="static", keyboard=False, centered=True),
             dbc.Modal([
-                dbc.ModalHeader("Success"),
-                dbc.ModalBody("Loaded the mat folder"),
-                dbc.ModalFooter(dbc.Button("Close", id="button-settings-apply-success-modal-close", className="ms-auto")),
+                dbc.ModalHeader([
+                    html.I(className="fas fa-check-circle me-2", style={"color": "#198754"}),
+                    "Success"
+                ], style={"background-color": "#d1e7dd", "border-bottom": "1px solid #198754"}),
+                dbc.ModalBody([
+                    html.Div([
+                        html.I(className="fas fa-check-circle", style={"font-size": "48px", "color": "#198754", "margin-bottom": "15px"}),
+                        html.Div("Successfully loaded the mat folder!", className="h5")
+                    ], className="text-center")
+                ], style={"padding": "30px"}),
+                dbc.ModalFooter(
+                    dbc.Button("Close", id="button-settings-apply-success-modal-close", color="success", className="ms-auto"),
+                    style={"background-color": "#f8f9fa"}
+                ),
             ], id="modal-settings-apply-success", is_open=False, centered=True),
             dbc.Modal([
-                dbc.ModalHeader("Error"),
-                dbc.ModalBody(html.Div(id="modal-settings-apply-error-body", children="Failed to load the mat folder")),
-                dbc.ModalFooter(dbc.Button("Close", id="button-settings-apply-error-modal-close", className="ms-auto")),
+                dbc.ModalHeader([
+                    html.I(className="fas fa-exclamation-triangle me-2", style={"color": "#dc3545"}),
+                    "Error"
+                ], style={"background-color": "#f8d7da", "border-bottom": "1px solid #dc3545"}),
+                dbc.ModalBody([
+                    html.Div([
+                        html.I(className="fas fa-times-circle", style={"font-size": "48px", "color": "#dc3545", "margin-bottom": "15px"}),
+                        html.Div([
+                            html.H5("Failed to load the mat folder", className="mb-3"),
+                            html.Div(id="modal-settings-apply-error-body", children="An error occurred", className="text-muted")
+                        ])
+                    ], className="text-center")
+                ], style={"padding": "30px"}),
+                dbc.ModalFooter(
+                    dbc.Button("Close", id="button-settings-apply-error-modal-close", color="danger", className="ms-auto"),
+                    style={"background-color": "#f8f9fa"}
+                ),
             ], id="modal-settings-apply-error", is_open=False, centered=True),
             dcc.Store(id="store-settings-apply-process-started"),
             dcc.Store(id="store-settings-apply-process-result"),
