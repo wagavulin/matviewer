@@ -1,0 +1,14 @@
+.theme-modal-header {
+  background-color: var(--bs-modal-header-bg);
+  color: var(--bs-body-color);
+}
+
+.theme-modal-body {
+  background-color: var(--bs-modal-bg);
+  color: var(--bs-body-color);
+}
+
+.theme-modal-footer {
+  background-color: var(--bs-modal-footer-bg);
+  color: var(--bs-body-color);
+}

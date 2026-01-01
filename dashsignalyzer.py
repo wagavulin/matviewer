@@ -157,49 +157,47 @@ app.layout = dbc.Container([
             ]),
             dbc.Modal([
                 dbc.ModalHeader([
-                    html.I(className="fas fa-spinner fa-spin me-2", style={"color": "#0d6efd"}),
+                    html.I(className="fas fa-spinner fa-spin me-2 text-primary"),
                     "Processing"
-                ], style={"background-color": "#e7f1ff", "border-bottom": "1px solid #0d6efd"}),
+                ], className="theme-mordal-header", style={"border-bottom": "1px solid var(--bs-border-color)"}),
                 dbc.ModalBody([
                     html.Div([
-                        dcc.Loading(id="loading-settings-apply", type="circle", color="#0d6efd", children=html.Div("Checking mat folder...", className="text-center mt-3")),
+                        dcc.Loading(id="loading-settings-apply", type="circle", color="var(--bs-primary)", children=html.Div("Checking mat folder...", className="text-center mt-3")),
                     ], className="text-center")
-                ], style={"padding": "30px"}),
+                ], className="theme-mordal-body", style={"padding": "30px"}),
             ], id="modal-settings-apply-processing", is_open=False, backdrop="static", keyboard=False, centered=True),
             dbc.Modal([
                 dbc.ModalHeader([
-                    html.I(className="fas fa-check-circle me-2", style={"color": "#198754"}),
+                    html.I(className="fas fa-check-circle me-2 text-success"),
                     "Success"
-                ], style={"background-color": "#d1e7dd", "border-bottom": "1px solid #198754"}),
+                ], className="theme-mordal-header", style={"border-bottom": "1px solid var(--bs-border-color)"}),
                 dbc.ModalBody([
                     html.Div([
-                        html.I(className="fas fa-check-circle", style={"font-size": "48px", "color": "#198754", "margin-bottom": "15px"}),
-                        html.Div("Successfully loaded the mat folder!", className="h5")
+                        html.I(className="fas fa-check-circle text-success", style={"font-size": "48px", "margin-bottom": "15px"}),
+                        html.Div("Loaded the mat folder")
                     ], className="text-center")
-                ], style={"padding": "30px"}),
+                ], className="theme-mordal-body", style={"padding": "30px"}),
                 dbc.ModalFooter(
                     dbc.Button("Close", id="button-settings-apply-success-modal-close", color="success", className="ms-auto"),
-                    style={"background-color": "#f8f9fa"}
-                ),
+                    className="theme-mordal-footer"),
             ], id="modal-settings-apply-success", is_open=False, centered=True),
             dbc.Modal([
                 dbc.ModalHeader([
-                    html.I(className="fas fa-exclamation-triangle me-2", style={"color": "#dc3545"}),
+                    html.I(className="fas fa-exclamation-triangle me-2 text-danger"),
                     "Error"
-                ], style={"background-color": "#f8d7da", "border-bottom": "1px solid #dc3545"}),
+                ], className="theme-mordal-header", style={"border-bottom": "1px solid var(--bs-border-color)"}),
                 dbc.ModalBody([
                     html.Div([
-                        html.I(className="fas fa-times-circle", style={"font-size": "48px", "color": "#dc3545", "margin-bottom": "15px"}),
+                        html.I(className="fas fa-times-circle text-danger", style={"font-size": "48px", "margin-bottom": "15px"}),
                         html.Div([
-                            html.H5("Failed to load the mat folder", className="mb-3"),
+                            html.P("Failed to load the mat folder", className="mb-3"),
                             html.Div(id="modal-settings-apply-error-body", children="An error occurred", className="text-muted")
                         ])
                     ], className="text-center")
-                ], style={"padding": "30px"}),
+                ], className="theme-mordal-body", style={"padding": "30px"}),
                 dbc.ModalFooter(
                     dbc.Button("Close", id="button-settings-apply-error-modal-close", color="danger", className="ms-auto"),
-                    style={"background-color": "#f8f9fa"}
-                ),
+                    className="theme-mordal-footer"),
             ], id="modal-settings-apply-error", is_open=False, centered=True),
             dcc.Store(id="store-settings-apply-process-started"),
             dcc.Store(id="store-settings-apply-process-result"),
