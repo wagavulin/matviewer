@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#%%
+import base64
 import dataclasses
+import glob
+import cv2
 import numpy as np
 import pandas as pd
 #from scipy.io import loadmat
@@ -36,17 +38,19 @@ THEMES = {
 class Config:
     event_list_path:str
     mat_server_dir:str
+    avi_dir:str
 
 CONF = Config(
     event_list_path="./event-list.xlsx",
-    mat_server_dir=f"{g_script_dir}/server-out"
+    mat_server_dir=f"{g_script_dir}/server-out",
+    avi_dir=f"{g_script_dir}/avi"
 )
 
 @dataclasses.dataclass
 class AppContext:
     mat_dir:str
 
-g_ac = AppContext(mat_dir="")
+g_ac = AppContext(mat_dir=f"{CONF.mat_server_dir}/11000")
 
 def get_signal_by_path(d, path:str):
     keys = path.split(".")
@@ -100,12 +104,72 @@ def generate_signal_figure(mat:h5py.File, event_time:float):
 
 g_evlist_df = pd.read_excel(CONF.event_list_path)
 
-#%%
 def generate_dummy_graph() -> go.Figure:
     df = px.data.iris()
     fig = px.scatter(df, x="sepal_width", y="sepal_length", color="species")
     return fig
 fig = generate_dummy_graph()
+
+def find_avi_from_filename(fname:str) -> str|None:
+    stem = os.path.splitext(fname)[0]
+    for path in glob.glob(f"{CONF.avi_dir}/*"):
+        tmp_fname = os.path.split(path)[1]
+        tmp_stem = os.path.splitext(tmp_fname)[0]
+        if stem == tmp_stem:
+            return path
+    return None
+
+def get_dat_min_max_time(h5obj:h5py.File) -> tuple[float,float]:
+    max_time = -99999
+    min_time = 99999
+    for k in h5obj.keys():
+        if "time" in h5obj[k]:
+            tmp_min_time = h5obj[k]["time"][0]
+            tmp_max_time = h5obj[k]["time"][-1]
+            min_time = min(tmp_min_time, min_time)
+            max_time = max(tmp_max_time, max_time)
+    return min_time, max_time
+
+def convert_to_avi_time(ev_dat_time:float, h5obj:h5py.File, avi_path:str) -> float:
+    min_time, _ = get_dat_min_max_time(h5obj)
+    avi_time = ev_dat_time - min_time
+    return avi_time
+
+def extract_still_image_as_ndarray(avi_path:str, avi_time_sec:float) -> np.ndarray:
+    cap = cv2.VideoCapture(avi_path)
+    if not cap.isOpened():
+        print("error1")
+        return False
+
+    cap.set(cv2.CAP_PROP_POS_MSEC, avi_time_sec*1000.0)
+    ret, frame = cap.read()
+    if not ret:
+        print("error2")
+        return False
+
+    return frame
+
+def extract_still_image_as_base64(avi_path:str, avi_time_sec:float) -> str:
+    frame = extract_still_image_as_ndarray(avi_path, avi_time_sec)
+    _, buffer = cv2.imencode(".jpg", frame)
+    encoded = base64.b64encode(buffer).decode("ascii")
+    return "data:image/jpeg;base64," + encoded
+
+def generate_still_image_as_base64(latid:int, h5obj:h5py.File) -> str:
+    row = g_evlist_df[g_evlist_df["event_id"] == latid].iloc[0]
+    fname = row["file"]
+    avi_path = find_avi_from_filename(fname)
+    print(f"avi_path: {avi_path}")
+    if avi_path is None:
+        return
+    dat = row["dat"]
+    print(avi_path)
+    print(type(dat))
+    print(dat)
+
+    avi_time_sec = convert_to_avi_time(dat, h5obj, avi_path)
+    b64img = extract_still_image_as_base64(avi_path, avi_time_sec)
+    return b64img
 
 external_stylesheets = [dbc.themes.CERULEAN]
 #external_stylesheets = [dbc.themes.SLATE]
@@ -157,7 +221,7 @@ app.layout = dbc.Container([
                             {"label": "Folder", "value": "by-folder"},
                         ],
                         value="by-job-number",
-                        inline=True, # 横並び
+                        inline=True,
                     ),
                     html.Hr(),
                     dbc.Collapse(
@@ -198,7 +262,7 @@ app.layout = dbc.Container([
                     dbc.Button("Apply", id="button-settings-apply", className="w-auto"),
                     html.P(id="debug-message1")
                 ])
-            ]),
+            ], fluid=True),
             dbc.Modal([
                 dbc.ModalHeader([
                     html.I(className="fas fa-spinner fa-spin me-2 text-primary"),
@@ -261,8 +325,12 @@ app.layout = dbc.Container([
                     html.Div(id="div-analysis-trigger-info"),
                 ]),
                 dbc.Row([
-                    dbc.Col(html.Img(src="hoge.jpg"), width=6, style={"height": "300", "border": "solid 1px"}),
-                    dbc.Col(html.Img(src="hoge.jpg"), width=6, style={"height": "300", "border": "solid 1px"}),
+                    dbc.Col(
+                        html.Div(
+                            html.Img(id="img-analysis-webcam", style={"maxWidth": "100%", "maxHeight": "auto", "objectFit": "contain"}),
+                            style={"width": "800px", "height": "600px", "border": "solid 1px"}),
+                        width=6),
+                    dbc.Col(html.Img(id="img-analysis-bev"), width=6, style={"height": "300", "border": "solid 1px"}),
                 ], style={"height": "20%"}),
                 dbc.Row([
                     dcc.Graph(
@@ -278,7 +346,7 @@ app.layout = dbc.Container([
                         },
                         style={"height": "800px"}),
                 ]),
-            ]),
+            ], fluid=True),
         ]),
     ],
     id="tabs-main",
@@ -440,6 +508,7 @@ def handle_check_mat_folder_result(result_data):
 
 @app.callback(
     Output("div-analysis-trigger-info", "children"),
+    Output("img-analysis-webcam", "src"),
     Output("graph-analysis-signals", "figure"),
     Input("dropdown-analysis-latid", "value"),
     prevent_initial_call=True)
@@ -454,6 +523,7 @@ def latid_updated(s_latid):
     h5obj = h5py.File(mat_path)
     dat = row["dat"]
     fig = generate_signal_figure(h5obj, dat)
-    return info_text, fig
+    b64img = generate_still_image_as_base64(latid, h5obj)
+    return info_text, b64img, fig
 
 app.run(host="0.0.0.0", debug=True)
