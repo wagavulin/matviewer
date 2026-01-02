@@ -94,6 +94,8 @@ def generate_signal_figure(mat:h5py.File, event_time:float):
     fig.add_trace(go.Scatter(x=port2_time[port2_r], y=port2_c1[port2_r], mode="lines+markers"), row=row, col=col)
     fig.add_vline(x=event_time, line_dash="dot", row=row, col=col)
 
+    fig.update_layout(dragmode=False)
+
     return fig
 
 g_evlist_df = pd.read_excel(CONF.event_list_path)
@@ -266,7 +268,14 @@ app.layout = dbc.Container([
                     dcc.Graph(
                         id="graph-analysis-signals",
                         #figure=fig,
-                        config={"staticPlot": True},
+                        config={
+                            #"staticPlot": True,
+                            "displayModeBar": False,
+                            "scrollZoom": False,
+                            "doubleClick": False,
+                            "showTips": True,
+                            "editable": False,
+                        },
                         style={"height": "800px"}),
                 ]),
             ]),
