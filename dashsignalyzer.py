@@ -185,6 +185,8 @@ app.layout = dbc.Container([
                 dbc.NavItem(dbc.NavLink("Home", href="#")),
                 dbc.DropdownMenu(
                     label="Settings",
+                    nav=True,
+                    in_navbar=True,
                     children=[
                         dbc.DropdownMenuItem("Application Settings", header=True),
                         html.Div([
@@ -193,8 +195,6 @@ app.layout = dbc.Container([
                                 id="navbar-theme-selector",
                                 options=[{"label": k, "value": v} for k, v in THEMES.items()],
                                 value=THEMES["CERULEAN"],
-                                className="mx-3 mb-2",
-                                style={"width": "200px"}
                             ),
                         ])
                     ],
