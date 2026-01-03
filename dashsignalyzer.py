@@ -324,60 +324,88 @@ app.layout = dbc.Container([
                                 className="theme-dropdown"),
                         ])
                     ]),
-                    dbc.Card([
-                        dbc.CardBody([
-                            html.P("12345  sample-001  1234.5  HH:MM:SS.DD", id="p-analysis-trigger-info", className="card-text mb-0", style={"font-weight": "bold"})
-                        ]),
-                    ]),
                 ], width=12),
             ], className="mb-4 mt-4"),
             dbc.Row([
                 dbc.Col([
                     dbc.Card([
                         dbc.CardBody([
-                            html.Img(
-                                id="img-analysis-webcam",
-                                src="https://via.placeholder.com/400x200/007bff/ffffff?text=Image+1",
-                                className="img-fluid",
-                                style={"width": "100%", "height": "100%", "object-fit": "cover"}
-                            )
-                        ])
-                    ], className="mb-3", style={"flex": "1"}),
-                    dbc.Card([
-                        dbc.CardBody([
-                            html.Img(
-                                id="img-analysis-bev",
-                                src="https://via.placeholder.com/400x200/007bff/ffffff?text=Image+1",
-                                className="img-fluid",
-                                style={"width": "100%", "height": "100%", "object-fit": "cover"}
-                            )
-                        ])
-                    ], className="mb-3", style={"flex": "1"}),
-                ], width=4, style={
-                    "height": "calc(100vh - 240px)",  # Adjusted for tabs
-                    "display": "flex",
-                    "flex-direction": "column"
-                }),
-                dbc.Col([
-                    dbc.Card([
-                        dbc.CardHeader("Analytics Dashboard"),
-                        dbc.CardBody([
-                            dcc.Graph(
-                                id="graph-analysis-signals",
-                                config={
-                                    #"staticPlot": True,
-                                    "displayModeBar": False,
-                                    "scrollZoom": False,
-                                    "doubleClick": False,
-                                    "showTips": True,
-                                    "editable": False,
+                            dash_table.DataTable(
+                                id="table-analysis-id-selection",
+                                style_table={
+                                    "height": "calc(100vh)",
                                 },
-                                style={"height": "600px"}
+                                style_data_conditional=[
+                                    {
+                                        "if": {"state": "selected"},
+                                        "background-color": "#cce5ff",
+                                        "border": "lightgray",
+                                    }
+                                ],
+                                data=g_evlist_df[["event_id"]].to_dict("records"),
                             )
                         ])
-                    ])
-                ], width=8)
-            ]),
+                    ], style={"height": "calc(100vh - 250px)"}),
+                ], width=1),
+                dbc.Col([
+                    dbc.Row([
+                        dbc.Col([
+                            dbc.Card([
+                                dbc.CardBody([
+                                    html.P("12345  sample-001  1234.5  HH:MM:SS.DD", id="p-analysis-trigger-info", className="card-text mb-0", style={"font-weight": "bold"})
+                                ]),
+                            ]),
+                        ], width=12)
+                    ]),
+                    dbc.Row([
+                        dbc.Col([
+                            dbc.Card([
+                                dbc.CardBody([
+                                    html.Img(
+                                        id="img-analysis-webcam",
+                                        src="https://via.placeholder.com/400x200/007bff/ffffff?text=Image+1",
+                                        className="img-fluid",
+                                        style={"width": "100%", "height": "100%", "object-fit": "cover"}
+                                    )
+                                ])
+                            ], className="mb-3", style={"flex": "1"}),
+                            dbc.Card([
+                                dbc.CardBody([
+                                    html.Img(
+                                        id="img-analysis-bev",
+                                        src="https://via.placeholder.com/400x200/007bff/ffffff?text=Image+1",
+                                        className="img-fluid",
+                                        style={"width": "100%", "height": "100%", "object-fit": "cover"}
+                                    )
+                                ])
+                            ], className="mb-3", style={"flex": "1"}),
+                        ], width=4, style={
+                            "height": "calc(100vh - 240px)",  # Adjusted for tabs
+                            "display": "flex",
+                            "flex-direction": "column"
+                        }),
+                        dbc.Col([
+                            dbc.Card([
+                                dbc.CardHeader("Analytics Dashboard"),
+                                dbc.CardBody([
+                                    dcc.Graph(
+                                        id="graph-analysis-signals",
+                                        config={
+                                            #"staticPlot": True,
+                                            "displayModeBar": False,
+                                            "scrollZoom": False,
+                                            "doubleClick": False,
+                                            "showTips": True,
+                                            "editable": False,
+                                        },
+                                        style={"height": "calc(100vh - 300px"}
+                                    )
+                                ])
+                            ])
+                        ], width=8)
+                    ]),
+                ], width=11),
+            ])
         ]),
     ],
     id="tabs-main",
