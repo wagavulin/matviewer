@@ -193,7 +193,7 @@ app.layout = dbc.Container([
                             dbc.Select(
                                 id="navbar-theme-selector",
                                 options=[{"label": k, "value": v} for k, v in THEMES.items()],
-                                value=THEMES["CERULEAN"],
+                                value=default_external_stylesheets[0],
                             ),
                         ])
                     ],
@@ -202,7 +202,7 @@ app.layout = dbc.Container([
             ]),
         ], fluid=True),
     ),
-    html.Link(id="navbar-theme-css", rel="stylesheet", href=THEMES["CERULEAN"]),
+    html.Link(id="navbar-theme-css", rel="stylesheet", href=default_external_stylesheets[0]),
     dbc.Tabs([
         dbc.Tab(label="Settings", tab_id="tab-settings", children=[
             dbc.Container([
