@@ -314,39 +314,70 @@ app.layout = dbc.Container([
             dash_table.DataTable(g_evlist_df.to_dict("records")),
         ]),
         dbc.Tab(label="Analysis", tab_id="tab-analysis", children=[
-            dbc.Container([
-                dbc.Row([
-                    dcc.Dropdown(
-                        id="dropdown-analysis-latid",
-                        options=[{"label": id, "value": id} for id in g_evlist_df["event_id"]],
-                        className="theme-dropdown"),
-                ]),
-                dbc.Row([
-                    html.Div(id="div-analysis-trigger-info"),
-                ]),
-                dbc.Row([
-                    dbc.Col(
-                        html.Div(
-                            html.Img(id="img-analysis-webcam", style={"maxWidth": "100%", "maxHeight": "auto", "objectFit": "contain"}),
-                            style={"width": "800px", "height": "600px", "border": "solid 1px"}),
-                        width=6),
-                    dbc.Col(html.Img(id="img-analysis-bev"), width=6, style={"height": "300", "border": "solid 1px"}),
-                ], style={"height": "20%"}),
-                dbc.Row([
-                    dcc.Graph(
-                        id="graph-analysis-signals",
-                        #figure=fig,
-                        config={
-                            #"staticPlot": True,
-                            "displayModeBar": False,
-                            "scrollZoom": False,
-                            "doubleClick": False,
-                            "showTips": True,
-                            "editable": False,
-                        },
-                        style={"height": "800px"}),
-                ]),
-            ], fluid=True),
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+                            dcc.Dropdown(
+                                id="dropdown-analysis-latid",
+                                options=[{"label": id, "value": id} for id in g_evlist_df["event_id"]],
+                                className="theme-dropdown"),
+                        ])
+                    ]),
+                    dbc.Card([
+                        dbc.CardBody([
+                            html.P("12345  sample-001  1234.5  HH:MM:SS.DD", id="p-analysis-trigger-info", className="card-text mb-0", style={"font-weight": "bold"})
+                        ]),
+                    ]),
+                ], width=12),
+            ], className="mb-4 mt-4"),
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+                            html.Img(
+                                id="img-analysis-webcam",
+                                src="https://via.placeholder.com/400x200/007bff/ffffff?text=Image+1",
+                                className="img-fluid",
+                                style={"width": "100%", "height": "100%", "object-fit": "cover"}
+                            )
+                        ])
+                    ], className="mb-3", style={"flex": "1"}),
+                    dbc.Card([
+                        dbc.CardBody([
+                            html.Img(
+                                id="img-analysis-bev",
+                                src="https://via.placeholder.com/400x200/007bff/ffffff?text=Image+1",
+                                className="img-fluid",
+                                style={"width": "100%", "height": "100%", "object-fit": "cover"}
+                            )
+                        ])
+                    ], className="mb-3", style={"flex": "1"}),
+                ], width=4, style={
+                    "height": "calc(100vh - 240px)",  # Adjusted for tabs
+                    "display": "flex",
+                    "flex-direction": "column"
+                }),
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardHeader("Analytics Dashboard"),
+                        dbc.CardBody([
+                            dcc.Graph(
+                                id="graph-analysis-signals",
+                                config={
+                                    #"staticPlot": True,
+                                    "displayModeBar": False,
+                                    "scrollZoom": False,
+                                    "doubleClick": False,
+                                    "showTips": True,
+                                    "editable": False,
+                                },
+                                style={"height": "600px"}
+                            )
+                        ])
+                    ])
+                ], width=8)
+            ]),
         ]),
     ],
     id="tabs-main",
@@ -507,7 +538,7 @@ def handle_check_mat_folder_result(result_data):
     return dash.no_update, dash.no_update, dash.no_update, dash.no_update
 
 @app.callback(
-    Output("div-analysis-trigger-info", "children"),
+    Output("p-analysis-trigger-info", "children"),
     Output("img-analysis-webcam", "src"),
     Output("graph-analysis-signals", "figure"),
     Input("dropdown-analysis-latid", "value"),
