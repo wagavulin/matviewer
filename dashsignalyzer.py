@@ -318,18 +318,6 @@ app.layout = dbc.Container([
                 dbc.Col([
                     dbc.Card([
                         dbc.CardBody([
-                            dcc.Dropdown(
-                                id="dropdown-analysis-latid",
-                                options=[{"label": id, "value": id} for id in g_evlist_df["event_id"]],
-                                className="theme-dropdown"),
-                        ])
-                    ]),
-                ], width=12),
-            ], className="mb-4 mt-4"),
-            dbc.Row([
-                dbc.Col([
-                    dbc.Card([
-                        dbc.CardBody([
                             dash_table.DataTable(
                                 id="table-analysis-id-selection",
                                 style_table={
@@ -386,7 +374,6 @@ app.layout = dbc.Container([
                         }),
                         dbc.Col([
                             dbc.Card([
-                                dbc.CardHeader("Analytics Dashboard"),
                                 dbc.CardBody([
                                     dcc.Graph(
                                         id="graph-analysis-signals",
