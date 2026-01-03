@@ -432,10 +432,10 @@ def toggle_mat_path_inputs(selected):
     return "invalid"
 
 def check_mat_folder(selection_method:str, job_number:str, folder_type:str, folder_path:str):
-    print(f"Selection method: {selection_method}")
-    print(f"Job number: {job_number}")
-    print(f"Folder type: {folder_type}")
-    print(f"Folder path: {folder_path}")
+    #print(f"Selection method: {selection_method}")
+    #print(f"Job number: {job_number}")
+    #print(f"Folder type: {folder_type}")
+    #print(f"Folder path: {folder_path}")
 
     import time
     time.sleep(0.5)
