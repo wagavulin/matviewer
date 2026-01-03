@@ -27,6 +27,7 @@ THEMES = {
     "SOLAR": dbc.themes.SOLAR,
     "SPACELAB": dbc.themes.SPACELAB,
 }
+default_external_stylesheets = [THEMES["CERULEAN"]]
 
 # THEMES = {
 #     name: value
@@ -171,11 +172,9 @@ def generate_still_image_as_base64(latid:int, h5obj:h5py.File) -> str:
     b64img = extract_still_image_as_base64(avi_path, avi_time_sec)
     return b64img
 
-external_stylesheets = [dbc.themes.CERULEAN]
-#external_stylesheets = [dbc.themes.SLATE]
 app = dash.Dash(
     __name__,
-    external_stylesheets=external_stylesheets,
+    external_stylesheets=default_external_stylesheets,
     suppress_callback_exceptions=True)
 app.layout = dbc.Container([
     dbc.Navbar(
