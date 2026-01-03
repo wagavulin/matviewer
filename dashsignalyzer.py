@@ -569,10 +569,15 @@ def handle_check_mat_folder_result(result_data):
     Output("p-analysis-trigger-info", "children"),
     Output("img-analysis-webcam", "src"),
     Output("graph-analysis-signals", "figure"),
-    Input("dropdown-analysis-latid", "value"),
+    #Input("dropdown-analysis-latid", "value"),
+    Input("table-analysis-id-selection", "active_cell"),
     prevent_initial_call=True)
-def latid_updated(s_latid):
-    latid = int(s_latid)
+def latid_updated(active):
+    if active is None:
+        return dash.no_update, dash.no_update, dash.no_update
+    row = active["row"]
+    col = active["column_id"]
+    latid = int(g_evlist_df.iloc[row][col])
     row = g_evlist_df[g_evlist_df["event_id"] == latid].iloc[0]
     info_text = f'{latid}  {row["file"]}  {row["dat"]}'
 
