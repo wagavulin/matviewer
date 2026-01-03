@@ -178,6 +178,31 @@ app = dash.Dash(
     external_stylesheets=external_stylesheets,
     suppress_callback_exceptions=True)
 app.layout = dbc.Container([
+    dbc.Navbar(
+        dbc.Container([
+            dbc.NavbarBrand("My Dashboard", className="ms-0"),
+            dbc.Nav([
+                dbc.NavItem(dbc.NavLink("Home", href="#")),
+                dbc.DropdownMenu(
+                    label="Settings",
+                    children=[
+                        dbc.DropdownMenuItem("Application Settings", header=True),
+                        html.Div([
+                            html.Label("Theme:", className="dropdown-header px-3 py-2"),
+                            dbc.Select(
+                                id="navbar-theme-selector",
+                                options=[{"label": k, "value": v} for k, v in THEMES.items()],
+                                value=THEMES["CERULEAN"],
+                                className="mx-3 mb-2",
+                                style={"width": "200px"}
+                            ),
+                        ])
+                    ],
+                ),
+                dbc.NavItem(dbc.NavLink("About", href="#")),
+            ]),
+        ], fluid=True),
+    ),
     dbc.NavbarSimple(
         brand="My Dashboard",
         color="primary",
@@ -192,7 +217,7 @@ app.layout = dbc.Container([
                     html.Div([
                         html.Label("Theme:", className="dropdown-header px-3 py-2"),
                         dbc.Select(
-                            id="navbar-theme-selector",
+                            id="navbar-theme-selector-old",
                             options=[{"label": k, "value": v} for k, v in THEMES.items()],
                             value=THEMES["CERULEAN"],
                             className="mx-3 mb-2",
