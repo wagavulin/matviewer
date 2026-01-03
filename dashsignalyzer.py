@@ -160,13 +160,13 @@ def generate_still_image_as_base64(latid:int, h5obj:h5py.File) -> str:
     row = g_evlist_df[g_evlist_df["event_id"] == latid].iloc[0]
     fname = row["file"]
     avi_path = find_avi_from_filename(fname)
-    print(f"avi_path: {avi_path}")
+    #print(f"avi_path: {avi_path}")
     if avi_path is None:
         return
     dat = row["dat"]
-    print(avi_path)
-    print(type(dat))
-    print(dat)
+    #print(avi_path)
+    #print(type(dat))
+    #print(dat)
 
     avi_time_sec = convert_to_avi_time(dat, h5obj, avi_path)
     b64img = extract_still_image_as_base64(avi_path, avi_time_sec)
